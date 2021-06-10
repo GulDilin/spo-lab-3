@@ -142,24 +142,24 @@ bool on_KEY_UP(size_t *args) {
     bool *open_edit_form = (bool *) args[5];
     if (!(*open_edit_form)) {
         struct console *cons = (struct console *) args[0];
-        int lengthArea = cons->text_area.window_main.book_lines;
-        int *selectedPage = ((int *) args[2]);
+        int length_area = cons->text_area.window_main.book_lines;
+        int *selected_page = ((int *) args[2]);
         int *selectedBook = ((int *) args[3]);
 
         (*selectedBook)--;
 
         if ((*selectedBook) < 0) {
-            (*selectedPage)--;
-            if ((*selectedPage) < 0) {
-                (*selectedPage) = 0;
+            (*selected_page)--;
+            if ((*selected_page) < 0) {
+                (*selected_page) = 0;
                 (*selectedBook) = 0;
             } else {
-                (*selectedBook) = lengthArea - 1;
+                (*selectedBook) = length_area - 1;
             }
         }
 
-        int selectBook = (*selectedPage) * lengthArea + (*selectedBook);
-        if (selectBook <= 0) {
+        int select_book = (*selected_page) * length_area + (*selectedBook);
+        if (select_book <= 0) {
             (*selectedBook) = 0;
         }
     }
@@ -170,18 +170,18 @@ bool on_KEY_DOWN(size_t *args) {
     bool *open_edit_form = (bool *) args[5];
     if (!(*open_edit_form)) {
         struct console *cons = (struct console *) args[0];
-        int lengthArea = cons->text_area.window_main.book_lines;
-        int *selectedPage = ((int *) args[2]);
+        int length_area = cons->text_area.window_main.book_lines;
+        int *selected_page = ((int *) args[2]);
         int *selectedBook = ((int *) args[3]);
         int *length = (int *) args[4];
         int pages = (*length) / cons->text_area.window_main.book_lines + 1;
 
         (*selectedBook)++;
 
-        if ((*selectedBook) >= lengthArea) {
-            (*selectedPage)++;
-            if ((*selectedPage) >= pages) {
-                (*selectedPage) = pages - 1;
+        if ((*selectedBook) >= length_area) {
+            (*selected_page)++;
+            if ((*selected_page) >= pages) {
+                (*selected_page) = pages - 1;
                 (*selectedBook)--;
             } else {
                 (*selectedBook) = 0;
@@ -192,9 +192,9 @@ bool on_KEY_DOWN(size_t *args) {
             (*selectedBook) = (*length) - 1;
         }
 
-        int selectBook = (*selectedPage) * lengthArea + (*selectedBook);
-        if (selectBook >= (*length)) {
-            selectBook--;
+        int select_book = (*selected_page) * length_area + (*selectedBook);
+        if (select_book >= (*length)) {
+            select_book--;
             (*selectedBook)--;
         }
     }
@@ -206,13 +206,13 @@ bool on_KEY_F1(size_t *args) {
     if (*open_edit_form) {
         struct console *cons = (struct console *) args[0];
         book **books = (book **) args[1];
-        int *selectedPage = ((int *) args[2]);
+        int *selected_page = ((int *) args[2]);
         int *selectedBook = ((int *) args[3]);
         int *editField = (int *) args[8];
 
-        int lengthArea = cons->text_area.window_main.book_lines;
-        int selectBook = (*selectedPage) * lengthArea + (*selectedBook);
-        book *cur_book = books[selectBook];
+        int length_area = cons->text_area.window_main.book_lines;
+        int select_book = (*selected_page) * length_area + (*selectedBook);
+        book *cur_book = books[select_book];
         form_driver(cons->forms.edit.form, REQ_NEXT_FIELD);
         form_driver(cons->forms.edit.form, REQ_PREV_FIELD);
         char *field_buffer_value = trim(field_buffer(cons->forms.edit.fields[0], 0));
@@ -235,11 +235,11 @@ bool on_KEY_F1(size_t *args) {
     }else{
         struct console *cons = (struct console *) args[0];
         book **books = (book **) args[1];
-        int *selectedPage = ((int *) args[2]);
+        int *selected_page = ((int *) args[2]);
         int *selectedBook = ((int *) args[3]);
-        int lengthArea = cons->text_area.window_main.book_lines;
-        int selectBook = (*selectedPage) * lengthArea + (*selectedBook);
-        book *cur_book = books[selectBook];
+        int length_area = cons->text_area.window_main.book_lines;
+        int select_book = (*selected_page) * length_area + (*selectedBook);
+        book *cur_book = books[select_book];
         if(cur_book->available > 0) {
             cur_book->available--;
         }
@@ -255,13 +255,13 @@ bool on_KEY_F2(size_t *args) {
     if (*open_edit_form) {
         struct console *cons = (struct console *) args[0];
         book **books = (book **) args[1];
-        int *selectedPage = ((int *) args[2]);
+        int *selected_page = ((int *) args[2]);
         int *selectedBook = ((int *) args[3]);
         int *editField = (int *) args[8];
 
-        int lengthArea = cons->text_area.window_main.book_lines;
-        int selectBook = (*selectedPage) * lengthArea + (*selectedBook);
-        book *cur_book = books[selectBook];
+        int length_area = cons->text_area.window_main.book_lines;
+        int select_book = (*selected_page) * length_area + (*selectedBook);
+        book *cur_book = books[select_book];
         form_driver(cons->forms.edit.form, REQ_NEXT_FIELD);
         form_driver(cons->forms.edit.form, REQ_PREV_FIELD);
         char *field_buffer_value = trim(field_buffer(cons->forms.edit.fields[0], 0));
@@ -283,11 +283,11 @@ bool on_KEY_F2(size_t *args) {
     }else{
         struct console *cons = (struct console *) args[0];
         book **books = (book **) args[1];
-        int *selectedPage = ((int *) args[2]);
+        int *selected_page = ((int *) args[2]);
         int *selectedBook = ((int *) args[3]);
-        int lengthArea = cons->text_area.window_main.book_lines;
-        int selectBook = (*selectedPage) * lengthArea + (*selectedBook);
-        book *cur_book = books[selectBook];
+        int length_area = cons->text_area.window_main.book_lines;
+        int select_book = (*selected_page) * length_area + (*selectedBook);
+        book *cur_book = books[select_book];
         if(cur_book->available < 10) {
             cur_book->available++;
         }
@@ -302,13 +302,13 @@ bool on_KEY_F3(size_t *args) {
     if (*open_edit_form) {
         struct console *cons = (struct console *) args[0];
         book **books = (book **) args[1];
-        int *selectedPage = ((int *) args[2]);
+        int *selected_page = ((int *) args[2]);
         int *selectedBook = ((int *) args[3]);
         int *editField = (int *) args[8];
 
-        int lengthArea = cons->text_area.window_main.book_lines;
-        int selectBook = (*selectedPage) * lengthArea + (*selectedBook);
-        book *cur_book = books[selectBook];
+        int length_area = cons->text_area.window_main.book_lines;
+        int select_book = (*selected_page) * length_area + (*selectedBook);
+        book *cur_book = books[select_book];
         form_driver(cons->forms.edit.form, REQ_NEXT_FIELD);
         form_driver(cons->forms.edit.form, REQ_PREV_FIELD);
         char *field_buffer_value = trim(field_buffer(cons->forms.edit.fields[0], 0));
@@ -338,13 +338,13 @@ bool on_KEY_F4(size_t *args) {
     if (*open_edit_form) {
         struct console *cons = (struct console *) args[0];
         book **books = (book **) args[1];
-        int *selectedPage = ((int *) args[2]);
+        int *selected_page = ((int *) args[2]);
         int *selectedBook = ((int *) args[3]);
         int *editField = (int *) args[8];
 
-        int lengthArea = cons->text_area.window_main.book_lines;
-        int selectBook = (*selectedPage) * lengthArea + (*selectedBook);
-        book *cur_book = books[selectBook];
+        int length_area = cons->text_area.window_main.book_lines;
+        int select_book = (*selected_page) * length_area + (*selectedBook);
+        book *cur_book = books[select_book];
         form_driver(cons->forms.edit.form, REQ_NEXT_FIELD);
         form_driver(cons->forms.edit.form, REQ_PREV_FIELD);
         char *field_buffer_value = trim(field_buffer(cons->forms.edit.fields[0], 0));
@@ -377,11 +377,11 @@ bool on_KEY_F5(size_t *args) {
         set_current_field(cons->forms.edit.form, cons->forms.edit.fields[0]);
     } else {
         book **books = (book **) args[1];
-        int lengthArea = cons->text_area.window_main.book_lines;
-        int *selectedPage = ((int *) args[2]);
+        int length_area = cons->text_area.window_main.book_lines;
+        int *selected_page = ((int *) args[2]);
         int *selectedBook = ((int *) args[3]);
-        int selectBook = (*selectedPage) * lengthArea + (*selectedBook);
-        book *cur_book = books[selectBook];
+        int select_book = (*selected_page) * length_area + (*selectedBook);
+        book *cur_book = books[select_book];
         form_driver(cons->forms.edit.form, REQ_VALIDATION);
         char *field_buffer_value = trim(field_buffer(cons->forms.edit.fields[0], 0));
         int *editField = (int *) args[8];

@@ -17,14 +17,14 @@ int init_curses() {
     return 0;
 }
 
-void borderBook(struct console *cons) {
-    wborder(cons->border.borderBookListW, '|', '|', '-', '-', '+', '+', '+', '+');
-    wborder(cons->border.borderBookInfoW, '|', '|', '-', '-', '+', '+', '+', '+');
+void border_book(struct console *cons) {
+    wborder(cons->border.border_book_list_window, '|', '|', '-', '-', '+', '+', '+', '+');
+    wborder(cons->border.border_book_info_window, '|', '|', '-', '-', '+', '+', '+', '+');
 }
 
-void initFormSearch(struct console *cons, int colsBookList) {
+void init_form_search(struct console *cons, int colsBookList) {
     cons->forms.search.window = derwin(cons->text_area.window_main.search_window, 1, colsBookList, 0, 0);
-    cons->forms.search.fields = calloc(3, sizeof(FIELD *));
+    cons->forms.search.fields = malloc(3 * sizeof(FIELD *));
     cons->forms.search.fields[0] = new_field(1, colsBookList-2, 0, 2, 2, 0);
     cons->forms.search.fields[1] = new_field(1, 2, 0, 0, 0, 0);
     cons->forms.search.fields[2] = NULL;
@@ -39,9 +39,9 @@ void initFormSearch(struct console *cons, int colsBookList) {
     post_form(cons->forms.search.form);
 }
 
-void initFormEdit(struct console *cons, int rowBookInfo, int colsBookInfo,int colsBookList) {
+void init_form_edit(struct console *cons, int rowBookInfo, int colsBookInfo, int colsBookList) {
     cons->forms.edit.window = derwin(cons->text_area.window_edit.info_book_window, rowBookInfo - 2, colsBookInfo, 1, 1);
-    cons->forms.edit.fields = calloc(2, sizeof(FIELD *));
+    cons->forms.edit.fields = malloc(2 * sizeof(FIELD *));
     cons->forms.edit.fields[0] = new_field(5, colsBookInfo-4, 2, colsBookList+2, 5, 0);
     cons->forms.edit.fields[1] = NULL;
 
@@ -66,8 +66,8 @@ int init_ui(struct console *cons) {
 
     int linesInBook = LINES - 3;
 
-    cons->border.borderBookListW = newwin(linesInBook, colsBookList, 1, 0);
-    cons->border.borderBookInfoW = newwin(linesInBook, colsBookInfo, 1, colsBookList);
+    cons->border.border_book_list_window = newwin(linesInBook, colsBookList, 1, 0);
+    cons->border.border_book_info_window = newwin(linesInBook, colsBookInfo, 1, colsBookList);
 
     cons->text_area.window_main.list_book_window = newwin(linesInBook - 2, colsBookList - 4, 2, 2);
     cons->text_area.window_main.info_book_window = newwin(linesInBook - 2, colsBookInfo - 4, 2, colsBookList + 2);
@@ -82,27 +82,25 @@ int init_ui(struct console *cons) {
     cons->text_area.window_edit.top_button_window = cons->text_area.window_main.top_button_window;
     cons->text_area.window_edit.bottom_button_window = cons->text_area.window_main.bottom_button_window;
 
-//    immedok(cons->text_area.list_book_window, TRUE);
-
-    initFormSearch(cons, colsBookList);
-    initFormEdit(cons, linesInBook, colsBookInfo, colsBookList);
+    init_form_search(cons, colsBookList);
+    init_form_edit(cons, linesInBook, colsBookInfo, colsBookList);
 
     return 0;
 }
 
 void refresh_border(struct console *cons) {
-    borderBook(cons);
+    border_book(cons);
     refresh();
-    wrefresh(cons->border.borderBookListW);
-    wrefresh(cons->border.borderBookInfoW);
+    wrefresh(cons->border.border_book_list_window);
+    wrefresh(cons->border.border_book_info_window);
 
 }
 
 void refresh_window_edit(struct console *cons) {
-    wborder(cons->border.borderBookListW, '|', '|', '-', '-', '+', '+', '+', '+');
+    wborder(cons->border.border_book_list_window, '|', '|', '-', '-', '+', '+', '+', '+');
     wborder(cons->forms.edit.window, '|', '|', '-', '-', '+', '+', '+', '+');
     refresh();
-    wrefresh(cons->border.borderBookListW);
+    wrefresh(cons->border.border_book_list_window);
     wrefresh(cons->forms.edit.window);
     wrefresh(cons->text_area.window_main.info_book_window);
     wrefresh(cons->text_area.window_main.list_book_window);
@@ -130,9 +128,9 @@ void clear_window_text_area(struct text_area *textArea) {
     delwin(textArea->window_main.bottom_button_window);
 }
 
-void clear_window_box_area(struct border *boxArea) {
-    delwin(boxArea->borderBookInfoW);
-    delwin(boxArea->borderBookListW);
+void clear_window_box_area(struct border *box_area) {
+    delwin(box_area->border_book_info_window);
+    delwin(box_area->border_book_list_window);
 }
 
 void clear_form_edit(struct form *search) {
@@ -166,22 +164,22 @@ void close_ui(struct console *cons) {
     endwin();
 }
 
-void print_book_list(struct console *cons, book **books, int lenght, int selectedPage, int selectedBook) {
+void print_book_list(struct console *cons, book **books, int lenght, int selected_page, int selected_book) {
     wclear(cons->text_area.window_main.list_book_window);
     for (int i = 0; i < cons->text_area.window_main.book_lines; i++) {
-        int index = cons->text_area.window_main.book_lines * selectedPage + i;
+        int index = cons->text_area.window_main.book_lines * selected_page + i;
         if (index >= lenght) { break; }
         book *bk = books[index];
         if (bk == NULL) continue;
-        char *m = calloc(cons->text_area.window_main.book_name_length + 1, sizeof(char));
+        char *m = malloc((cons->text_area.window_main.book_name_length + 1) * sizeof(char));
         memcpy(m, bk->title, cons->text_area.window_main.book_name_length);
-        if (i == selectedBook) wprintw(cons->text_area.window_main.list_book_window, "> %s\n", m);
+        if (i == selected_book) wprintw(cons->text_area.window_main.list_book_window, "> %s\n", m);
         else wprintw(cons->text_area.window_main.list_book_window, "%s\n", m);
         free(m);
     }
 }
 
-void printBookInfo(struct console *cons, book *book) {
+void print_book_info(struct console *cons, book *book) {
     wclear(cons->text_area.window_main.info_book_window);
     wprintw(cons->text_area.window_main.info_book_window, "Title: %s\n", book->title);
     wprintw(cons->text_area.window_main.info_book_window, "Authors: %s\n", book->authors);
@@ -190,7 +188,7 @@ void printBookInfo(struct console *cons, book *book) {
     wprintw(cons->text_area.window_main.info_book_window, "Available: %d\n", book->available);
 }
 
-void printTopMenu(struct console *cons, const bool *open_edit_form) {
+void print_top_menu(struct console *cons, const bool *open_edit_form) {
     wclear(cons->text_area.window_main.top_button_window);
     if(!(*open_edit_form)) {
         wprintw(cons->text_area.window_main.top_button_window, "[Get book ");
@@ -249,7 +247,7 @@ void printTopMenu(struct console *cons, const bool *open_edit_form) {
     wprintw(cons->text_area.window_main.top_button_window, "]");
 }
 
-void printBottonMenu(struct console *cons, const bool *checkboxFilter, const bool *open_edit_form, const int *editField) {
+void print_botton_menu(struct console *cons, const bool *checkboxFilter, const bool *open_edit_form, const int *editField) {
     wclear(cons->text_area.window_main.bottom_button_window);
     if(!(*open_edit_form)) {
         wprintw(cons->text_area.window_main.bottom_button_window, "Filter by ");
@@ -303,34 +301,34 @@ void printBottonMenu(struct console *cons, const bool *checkboxFilter, const boo
     }
 }
 
-void printSelectedBook(struct console *cons, book **books, int selectBook, const int *editField) {
+void print_selected_book(struct console *cons, book **books, int selectBook, const int *editField) {
     book *bk = books[selectBook];
     if(*editField == EDIT_BOX_NONE){
-        printBookInfo(cons, bk);
+        print_book_info(cons, bk);
     }
 }
 
 void update_ui(size_t *args) {
     struct console *cons = (struct console *) args[0];
     book **books= (book **) args[1];
-    int selectedPage = *((int *)args[2]);
-    int selectedBook = *((int *)args[3]);
+    int selected_page = *((int *)args[2]);
+    int selected_book = *((int *)args[3]);
     int count_book = *((int *)args[4]);
     bool *open_edit_field = (bool *) args[5];
     bool *checkboxFilter = (bool *) args[6];
     int *editField = (int *) args[8];
 
-    int selectBook = selectedPage * cons->text_area.window_main.book_lines + selectedBook;
+    int selectBook = selected_page * cons->text_area.window_main.book_lines + selected_book;
 
-    printTopMenu(cons, open_edit_field);
-    printBottonMenu(cons, checkboxFilter, open_edit_field, editField);
-    print_book_list(cons, books, count_book, selectedPage, selectedBook);
+    print_top_menu(cons, open_edit_field);
+    print_botton_menu(cons, checkboxFilter, open_edit_field, editField);
+    print_book_list(cons, books, count_book, selected_page, selected_book);
 
     if(*open_edit_field) {
-        printSelectedBook(cons, books, selectBook, editField);
+        print_selected_book(cons, books, selectBook, editField);
         refresh_window_edit(cons);
     }else {
-        printBookInfo(cons, books[selectBook]);
+        print_book_info(cons, books[selectBook]);
         refresh_window_main(cons);
     }
 }
@@ -338,7 +336,7 @@ void update_ui(size_t *args) {
 void clear_all_window(size_t *args) {
     struct console *cons = (struct console *) args[0];
     wclear(cons->text_area.window_main.info_book_window);
-    wclear(cons->border.borderBookInfoW);
-    wclear(cons->border.borderBookListW);
+    wclear(cons->border.border_book_info_window);
+    wclear(cons->border.border_book_list_window);
     wclear(cons->forms.edit.window);
 }

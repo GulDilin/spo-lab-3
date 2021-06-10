@@ -19,8 +19,8 @@
 #define EDIT_BOX_NONE -1
 
 struct border {
-    WINDOW *borderBookListW;
-    WINDOW *borderBookInfoW;
+    WINDOW *border_book_list_window;
+    WINDOW *border_book_info_window;
 };
 
 struct window_edit {

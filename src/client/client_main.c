@@ -1,6 +1,8 @@
 #include "./client_main.h"
 
 int client_socket;
+pthread_mutex_t mutex;
+client_thread thread;
 
 int connect_server(char *ip, long port, int *socket) {
     int return_code = NORMAL_END;
@@ -45,6 +47,9 @@ void list_books_command(const int *socket, book ***books, int *length) {
                 (*books) = realloc((*books), ((*length) + 1) * sizeof(book *));
         }
     }
+    pthread_mutex_lock(&mutex);
+    thread.need_update = true;
+    pthread_mutex_unlock(&mutex);
 }
 
 size_t parse_command_client(size_t command, function_client * parsed_function) {
@@ -104,16 +109,17 @@ void *event_update(void *args) {
     event_info_client *arg = args;
     int *command = arg->command;
     size_t *active_status = arg->active_status;
-    bool *need_update = arg->need_update;
     size_t *argsA = arg->args;
     while(*active_status == ACTIVE) {
         *active_status = serve_event_client(*command = getch(), argsA);
-        *need_update = true;
+        pthread_mutex_lock(&mutex);
+        thread.need_update = true;
+        pthread_mutex_unlock(&mutex);
     }
     return NULL;
 }
 
-int ui_work(book **books, const int *book_amount, bool *work, bool *need_update) {
+int ui_work(book **books, const int *book_amount, bool *work) {
     struct console console;
     printf("UI init");
     PRINTLN;
@@ -137,7 +143,7 @@ int ui_work(book **books, const int *book_amount, bool *work, bool *need_update)
     args[7] = (size_t) &command;
     args[8] = (size_t) &editField;
     args[9] = (size_t) &client_socket;
-    args[10] = (size_t) need_update;
+//    args[10] = (size_t) need_update;
 
     size_t active_status = ACTIVE;
 
@@ -146,14 +152,18 @@ int ui_work(book **books, const int *book_amount, bool *work, bool *need_update)
     event.active_status = &active_status;
     event.command = &command;
     event.args = args;
-    event.need_update = need_update;
+//    event.need_update = need_update;
 
     printf("Create thread to event updating");
     pthread_create(&threadUpdateEvent, NULL, event_update, &event);
 
     do {
-        if (*need_update)  { update_ui(args); *need_update = false; }
-        usleep(1);
+        pthread_mutex_lock(&mutex);
+        if (thread.need_update)  {
+            update_ui(args);
+            thread.need_update = false;
+        }
+        pthread_mutex_unlock(&mutex);
     } while (active_status == ACTIVE && *work);
     free(args);
     close_ui(&console);
@@ -166,13 +176,16 @@ void interrupt_close_client() {
 }
 
 void *update_book_thread(void *args) {
+    usleep(100);
     client_thread *arg = args;
     command_frame command;
     while(*(arg->connect)) {
         unpack_command(arg->socket, &command);
         if(command.command == UPDATE_BOOK_INFO) {
             list_books_command(&(arg->socket), &(arg->books), arg->length);
-            *(arg->need_update) = false;
+            pthread_mutex_lock(&mutex);
+            thread.need_update = true;
+            pthread_mutex_unlock(&mutex);
         }else if(command.command == QUIT) {
             *(arg->connect) = false;
         }
@@ -182,28 +195,26 @@ void *update_book_thread(void *args) {
 
 int run_client(char *ip, long port) {
     signal(SIGINT, interrupt_close_client);
+    int amount = 0;
+    bool work = true;
 
     int return_code = connect_server(ip, port, &client_socket);
     if (return_code > 0) return return_code;
 
-    int amount = 0;
     book **books = malloc(sizeof(book *));
     list_books_command(&client_socket, &books, &amount);
-
-    bool work = true;
-    bool need_update = true;
-
-    client_thread thread;
     thread.socket = client_socket;
     thread.books = books;
     thread.length = &amount;
     thread.connect = &work;
-    thread.need_update = &need_update;
+    thread.need_update = true;
+
+
 
     printf("Create update thread \n");
     pthread_create(&thread.thread_id, NULL, update_book_thread, &thread);
     printf("Update thread created\n");
-    return_code = ui_work(books, &amount, &work, &need_update);
+    return_code = ui_work(books, &amount, &work);
     if(return_code != NORMAL_END) return return_code;
     socket_close(&client_socket);
     free_books(books, amount);

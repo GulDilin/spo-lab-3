@@ -7,16 +7,14 @@ book** generate_books(size_t length) {
 
     for (size_t i = 0; i < length; i++) {
         books[i] = malloc(sizeof(book));
-        printf("Memory allocated for one %ld\n", i);
         books[i]->bookID = i;
         books[i]->available = 10;
-        snprintf(books[i]->title, MAX_BOOK_TITLE_LENGTH, "Book Example %zu", i);
+        snprintf(books[i]->title, MAX_BOOK_TITLE_LENGTH, "Example %zu", i);
         snprintf(books[i]->authors, MAX_BOOK_AUTHORS_AMOUNT * MAX_BOOK_AUTHOR_NAME_LENGTH, "Ivan, Igor");
         snprintf(books[i]->tags, MAX_BOOK_TAGS_AMOUNT * MAX_BOOK_TAG_LENGTH, "Bestseller");
         snprintf(books[i]->annotation, MAX_BOOK_ANNOTATION_LENGTH, "Is is absolutely adorable book");
     }
     books[length] = NULL;
-    printf("Memory allocated for one %ld\n", length);
     return books;
 }
 
@@ -30,6 +28,5 @@ void free_books(book **books, const int books_amount) {
 }
 
 book ** read_books() {
-    printf("Start read books\n");
-    return generate_books(10);
+    return generate_books(50);
 }

@@ -37,9 +37,11 @@ void *main_connect_thread(void *args) {
     pthread_exit(NORMAL_END);
 }
 
-void send_command_all(const int client_number, command_frame *command) {
-    for (int i = 0; i < client_number; i++) {
+void send_command_all(command_frame *command) {
+    for (int i = 0; i < MAX_CLIENTS_AMOUNT; i++) {
         if(connections[i].socket < 0 || connections[i].connection_status != ACTIVE) continue;
+        printf(MESSAGE_FORMAT_CLIENT_SEND_COMMAND, i, command->command);
+        PRINTLN;
         send_command(connections[i].socket, command);
     }
 }
@@ -95,7 +97,7 @@ size_t update_book_command(event_info event) {
     }
     command_frame command;
     command.command = UPDATE_BOOK_INFO;
-    send_command_all(*event.client_number_src, &command);
+    send_command_all(&command);
     return NORMAL_END;
 }
 

@@ -30,11 +30,12 @@ typedef size_t (*function)(event_info);
 
 int run_server(long port);
 
-#define MESSAGE_FORMAT_CLIENT_PACKET_UNKNOWN "Client #%zu -- Unknown packet"
-#define MESSAGE_FORMAT_CLIENT_CONNECTED "Client #%zu -- Connected"
-#define MESSAGE_FORMAT_CLIENT_BOOKS_LIST "Client #%zu -- List Books"
-#define MESSAGE_FORMAT_CLIENT_QUIT "Client #%zu -- Quit"
-#define MESSAGE_FORMAT_CLIENT_BOOKS_UPDATE "Client #%zu -- Quit"
+#define MESSAGE_FORMAT_CLIENT_PACKET_UNKNOWN "Client #%zu <- Unknown packet"
+#define MESSAGE_FORMAT_CLIENT_CONNECTED "Client #%zu <- Connected"
+#define MESSAGE_FORMAT_CLIENT_BOOKS_LIST "Client #%zu <- List Books"
+#define MESSAGE_FORMAT_CLIENT_QUIT "Client #%zu <- Quit"
+#define MESSAGE_FORMAT_CLIENT_BOOKS_UPDATE "Client #%zu <- Quit"
+#define MESSAGE_FORMAT_CLIENT_SEND_COMMAND "Client #%d -> command %d"
 #define MESSAGE_BOOKS_READ "Books read finished"
 
 #endif

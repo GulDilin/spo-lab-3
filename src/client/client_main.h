@@ -8,6 +8,7 @@
 #include "../common.h"
 #include "./ui.h"
 #include "./events.h"
+#include <unistd.h>
 
 typedef struct {
     pthread_t thread_id;
@@ -15,13 +16,12 @@ typedef struct {
     book **books;
     int *length;
     bool *connect;
-    bool *need_update;
+    bool need_update;
 } client_thread;
 
 typedef struct {
     size_t *active_status;
     int *command;
-    bool *need_update;
     size_t *args;
 } event_info_client;
 
@@ -29,4 +29,5 @@ typedef size_t (*function_client)(size_t *);
 
 int run_client(char * address,  long port);
 
+#define UPDATE_TIMEOUT 100
 #endif

@@ -36,29 +36,15 @@ char *trim(char *str) {
     return ltrim(rtrim(str, NULL), NULL);
 }
 
-int seek_substring_KMP(char *source, char *find) {
-    size_t N = strlen(source);
-    size_t M = strlen(find);
-
-    int succ = 0;
-    for (int i = 0; i < N; i++) {
-        for (int j = 0; j < M; j++) {
-            if (source[i] == find[j]) {
-                succ = 1;
-                i++;
-            } else {
-                succ = 0;
-                i += j - 1;
-                break;
-            }
-        }
-        if(succ) return succ;
-    }
-    return -1;
+int find_substr(char *source, char *find) {
+    if (strlen(find) < 1) return -1;
+    if (strlen(source) < 1) return -1;
+    return strstr(source, find) != NULL ? 0: -1;
 }
 
 void update_book(int socket, book * book) {
-    command_frame command= {UPDATE_BOOK_MODIFY};
+    command_frame command;
+    command.command = UPDATE_BOOK_MODIFY;
     book_command_frame book_command = {UPDATE_BOOK_MODIFY, *book};
     send_command(socket, &command);
     send_book_command(socket, &book_command);
@@ -78,10 +64,10 @@ void search_text(size_t *args) {
 
     for (int i = 0; i < *book_length; i++) {
         book *book = books[i];
-        int t1 = checkbox[CHECKBOX_FILTER_BY_TITLE] ? seek_substring_KMP(book->title, field_buffer_value) : -1;
-        int t2 = checkbox[CHECKBOX_FILTER_BY_TAG] ? seek_substring_KMP(book->tags, field_buffer_value) : -1;
-        int a1 = checkbox[CHECKBOX_FILTER_BY_AUTHOR] ? seek_substring_KMP(book->authors, field_buffer_value) : -1;
-        int a2 = checkbox[CHECKBOX_FILTER_BY_ANNOTATION] ? seek_substring_KMP(book->annotation, field_buffer_value)
+        int t1 = checkbox[CHECKBOX_FILTER_BY_TITLE] ? find_substr(book->title, field_buffer_value) : -1;
+        int t2 = checkbox[CHECKBOX_FILTER_BY_TAG] ? find_substr(book->tags, field_buffer_value) : -1;
+        int a1 = checkbox[CHECKBOX_FILTER_BY_AUTHOR] ? find_substr(book->authors, field_buffer_value) : -1;
+        int a2 = checkbox[CHECKBOX_FILTER_BY_ANNOTATION] ? find_substr(book->annotation, field_buffer_value)
                                                          : -1;
 
         if (t1 == -1 && t2 == -1 && a1 == -1 && a2 == -1) {
